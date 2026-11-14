@@ -4,8 +4,6 @@ A clipboard history manager for Windows. Press one hotkey, and everything you ha
 
 > **Fork notice** — PasteWin is a GPL-3.0 fork of [XueshiQiao/PastePaw](https://github.com/XueshiQiao/PastePaw) (v1.6.0). Upstream author: XueshiQiao. Modifications in this repository are released under the same license. See [License](#license).
 
-![PasteWin dark theme](docs/screenshot_win_dark.png)
-
 ## Why this fork
 
 Upstream is already a solid app (Tauri 2 + Rust + React + SQLite). Rather than building another clipboard manager from scratch, this fork keeps the good parts and closes the gaps that matter for daily use:

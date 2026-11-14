@@ -4,8 +4,6 @@ Windows 剪贴板历史管理器。按一次热键，所有复制过的内容以
 
 > **Fork 说明** — 本项目是 [XueshiQiao/PastePaw](https://github.com/XueshiQiao/PastePaw)（v1.6.0）的 GPL-3.0 衍生版本。原作者：XueshiQiao。本仓库的修改同样以 GPL-3.0 发布，详见[许可证](#许可证)。
 
-![PasteWin 深色主题](docs/screenshot_win_dark.png)
-
 ## 为什么要 fork
 
 上游本身做得不错（Tauri 2 + Rust + React + SQLite），没必要从零再写一个。这个 fork 保留它的底子，只补日常使用真正缺的东西：
