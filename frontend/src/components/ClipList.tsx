@@ -173,6 +173,7 @@ export function ClipList({
           clip={clip}
           isSelected={selectedClipId === clip.id}
           layout={layout}
+          shortcutNumber={columnIndex < 9 ? columnIndex + 1 : undefined}
           onSelect={() => onSelectClip(clip.id)}
           onPaste={() => onPaste(clip.id)}
           onCopy={() => onCopy(clip.id)}

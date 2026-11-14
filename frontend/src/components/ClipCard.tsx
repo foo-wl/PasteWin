@@ -11,6 +11,8 @@ interface ClipCardProps {
   clip: ClipboardItem;
   isSelected: boolean;
   layout: { columnWidth: number; cardGap: number; cardVerticalPadding: number };
+  /** Shown as a key cap in the footer; Ctrl+N pastes this card directly. */
+  shortcutNumber?: number;
   onSelect: () => void;
   onPaste: () => void;
   onCopy: () => void;
@@ -24,6 +26,7 @@ export const ClipCard = memo(
       clip,
       isSelected,
       layout,
+      shortcutNumber,
       onSelect,
       onPaste,
       onCopy,
@@ -245,6 +248,14 @@ export const ClipCard = memo(
                   ? t('clipList.richTextLength', { count: clip.content.length })
                   : t('clipList.textLength', { count: clip.content.length })}
             </span>
+            {shortcutNumber !== undefined && (
+              <span
+                title={`Ctrl+${shortcutNumber}`}
+                className="ml-2 flex-shrink-0 rounded-[4px] border border-border/70 px-1 py-[1px] text-[10px] font-semibold leading-none tabular-nums text-muted-foreground/60"
+              >
+                {shortcutNumber}
+              </span>
+            )}
           </div>
         </div>
       </div>

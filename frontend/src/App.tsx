@@ -555,14 +555,16 @@ function App() {
     }
   }, [selectedClipId, handlePaste]);
 
-  useKeyboard({
-    onClose: () => appWindow.hide(),
-    onSearch: () => setShowSearch(true),
-    onDelete: () => handleDelete(selectedClipId),
-    onNavigateLeft: handleNavigateLeft,
-    onNavigateRight: handleNavigateRight,
-    onPaste: handlePasteSelected,
-  });
+  // Ctrl+1..9 pastes the Nth visible card directly (0-based index from the hook).
+  const handlePasteIndex = useCallback(
+    (index: number) => {
+      const clip = clips[index];
+      if (clip) {
+        handlePaste(clip.id);
+      }
+    },
+    [clips, handlePaste]
+  );
 
   const handleCreateFolder = async (name: string) => {
     try {
@@ -625,6 +627,19 @@ function App() {
     isOpen: false,
     title: '',
     content: '',
+  });
+
+  // Shortcuts stay inert while a modal owns the window.
+  const isDialogOpen = showAddFolderModal || confirmDialog.isOpen || aiResult.isOpen;
+
+  useKeyboard({
+    onClose: () => appWindow.hide(),
+    onSearch: () => setShowSearch(true),
+    onDelete: () => handleDelete(selectedClipId),
+    onNavigateLeft: handleNavigateLeft,
+    onNavigateRight: handleNavigateRight,
+    onPaste: handlePasteSelected,
+    onPasteIndex: isDialogOpen ? undefined : handlePasteIndex,
   });
 
   const handleAiAction = async (clipId: string, action: string, title: string) => {

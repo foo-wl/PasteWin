@@ -8,11 +8,42 @@ interface KeyboardOptions {
   onNavigateLeft?: () => void;
   onNavigateRight?: () => void;
   onPaste?: () => void;
+  /** Quick paste: 1-based index of the visible card (Ctrl+1 -> 0). */
+  onPasteIndex?: (index: number) => void;
+}
+
+/**
+ * True when the event originates from a text field, so single-key shortcuts
+ * (digits, "p") must not hijack what the user is typing.
+ */
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (target instanceof HTMLElement) {
+    const tag = target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (target.isContentEditable) return true;
+  }
+  return false;
 }
 
 export function useKeyboard(options: KeyboardOptions) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const typing = isEditableTarget(e.target);
+
+      // Ctrl+1..9 pastes the Nth card directly, without moving the selection first.
+      if (
+        options.onPasteIndex &&
+        (e.ctrlKey || e.metaKey) &&
+        !e.altKey &&
+        !e.shiftKey &&
+        !typing &&
+        /^[1-9]$/.test(e.key)
+      ) {
+        e.preventDefault();
+        options.onPasteIndex(Number(e.key) - 1);
+        return;
+      }
+
       if (e.key === 'Escape' && options.onClose) {
         e.preventDefault();
         options.onClose();
@@ -28,7 +59,7 @@ export function useKeyboard(options: KeyboardOptions) {
         options.onDelete();
       }
 
-      if (e.key === 'p' && !e.metaKey && !e.ctrlKey && options.onPin) {
+      if (e.key === 'p' && !e.metaKey && !e.ctrlKey && !typing && options.onPin) {
         e.preventDefault();
         options.onPin();
       }
