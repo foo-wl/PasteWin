@@ -10,6 +10,10 @@ concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
+# Needed to publish the rolling "nightly" release.
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -47,8 +51,10 @@ jobs:
           workspaces: src-tauri -> target
           key: ${{ matrix.target }}
 
+      # NSIS only: produces a single setup.exe and skips the WiX/MSI pipeline,
+      # which is the step that most often fails on a fresh runner.
       - name: Build
-        run: pnpm tauri build --target ${{ matrix.target }}
+        run: pnpm tauri build --target ${{ matrix.target }} --bundles nsis
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
@@ -59,6 +65,18 @@ jobs:
           name: pastewin-${{ matrix.arch }}-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
-          path: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
-            src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
+          path: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
+
+      # Public download without logging in:
+      # https://github.com/foo-wl/PasteWin/releases/download/nightly/PasteWin_0.1.0_x64-setup.exe
+      - name: Publish rolling release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
+          name: Latest build
+          prerelease: true
+          body: |
+            Automated build from `${{ github.sha }}` (${{ github.ref_name }}).
+            Unsigned installer — SmartScreen will warn, choose "More info" → "Run anyway".
+          files: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
