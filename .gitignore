@@ -27,3 +27,6 @@ nul
 
 # Leftover from a failed in-place edit during the rebrand
 src-tauri/src/XXjEE3pZ
+
+# Local build artifacts downloaded from CI
+dist-artifacts/
