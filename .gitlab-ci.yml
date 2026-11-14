@@ -1,0 +1,42 @@
+# Build the Windows installer on GitLab.com's hosted Windows runners.
+# Runner tag: saas-windows-medium-amd64 (2 vCPU / 7.5 GB / Windows 2022, Free tier).
+# The shell is PowerShell, so every script line below is PowerShell.
+stages:
+  - build
+
+windows-build:
+  stage: build
+  tags:
+    - saas-windows-medium-amd64
+  timeout: 2h
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web"
+  variables:
+    CARGO_TERM_COLOR: always
+    RUST_BACKTRACE: "1"
+  before_script:
+    - $ErrorActionPreference = "Stop"
+    - Write-Host "node $(node --version) on $env:OS"
+    - npm install -g pnpm@9
+    - if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) { Invoke-WebRequest -Uri "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe" -OutFile rustup-init.exe; .\rustup-init.exe -y --default-toolchain stable --profile minimal }
+    - $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
+    - rustc --version
+    - cargo --version
+    - pnpm --version
+  script:
+    - Write-Host "=== install frontend deps ==="
+    - pnpm install --frozen-lockfile
+    - Write-Host "=== build app + NSIS installer ==="
+    - pnpm tauri build --bundles nsis
+    - Write-Host "=== produced installers ==="
+    - Get-ChildItem -Recurse src-tauri/target/release/bundle/nsis -Filter *.exe | Select-Object FullName, Length
+  artifacts:
+    name: "PasteWin-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - src-tauri/target/release/bundle/nsis/*.exe
+    expire_in: 30 days
+  cache:
+    key: cargo-$CI_COMMIT_REF_SLUG
+    paths:
+      - src-tauri/target/
