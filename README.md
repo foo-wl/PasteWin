@@ -29,6 +29,8 @@ Upstream is already a solid app (Tauri 2 + Rust + React + SQLite). Rather than b
 - Global hotkey (default `Ctrl+Shift+V`, customizable)
 - Search across history (`Ctrl+F`)
 - Folders to organize clips
+- Pin clips to the top of the stream (`P` or the right-click menu)
+- Quick paste: `Ctrl+1` … `Ctrl+9` pastes the Nth card without leaving the keyboard
 - Application exceptions — never record from password managers or banking apps
 - Multi-monitor aware — appears on the display where your cursor is
 - Native dark/light theme with Mica window effects
@@ -49,6 +51,8 @@ Download the latest `PasteWin_<version>_x64-setup.exe` from [Releases](../../rel
 |---|---|---|
 | Global | `Ctrl+Shift+V` | Show / hide the panel |
 | In app | `←` `→` | Move selection |
+| In app | `Ctrl+1` … `Ctrl+9` | Paste the Nth card directly |
+| In app | `P` | Pin / unpin the selected clip |
 | In app | `Enter` | Paste selected clip |
 | In app | `Ctrl+F` | Focus search |
 | In app | `Delete` | Delete selected clip |
