@@ -19,6 +19,8 @@ windows-build:
     - $ErrorActionPreference = "Stop"
     - Write-Host "node $(node --version) on $env:OS"
     - npm install -g pnpm@9
+    # npm's global bin directory is not on PATH on these runners.
+    - $env:PATH = "$(npm config get prefix);$env:PATH"
     - if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) { Invoke-WebRequest -Uri "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe" -OutFile rustup-init.exe; .\rustup-init.exe -y --default-toolchain stable --profile minimal }
     - $env:PATH = "$env:USERPROFILE\.cargo\bin;$env:PATH"
     - rustc --version
