@@ -120,6 +120,7 @@ fn clip_to_list_item(clip: &Clip, image_path: Option<&str>) -> ClipboardItem {
         source_app: clip.source_app.clone(),
         source_icon: clip.source_icon.clone(),
         metadata: clip.metadata.clone(),
+        is_pinned: clip.is_pinned,
     }
 }
 
@@ -140,6 +141,7 @@ fn clip_to_detail_item(clip: &Clip, full_image_content: Option<&[u8]>) -> Clipbo
         source_app: clip.source_app.clone(),
         source_icon: clip.source_icon.clone(),
         metadata: clip.metadata.clone(),
+        is_pinned: clip.is_pinned,
     }
 }
 
@@ -348,7 +350,7 @@ pub async fn get_clips(
                 sqlx::query_as(
                     r#"
                     SELECT * FROM clips WHERE is_deleted = 0 AND folder_id = ?
-                    ORDER BY created_at DESC LIMIT ? OFFSET ?
+                    ORDER BY is_pinned DESC, created_at DESC LIMIT ? OFFSET ?
                 "#,
                 )
                 .bind(numeric_id)
@@ -367,7 +369,7 @@ pub async fn get_clips(
             sqlx::query_as(
                 r#"
                 SELECT * FROM clips WHERE is_deleted = 0
-                ORDER BY created_at DESC LIMIT ? OFFSET ?
+                ORDER BY is_pinned DESC, created_at DESC LIMIT ? OFFSET ?
             "#,
             )
             .bind(limit)
@@ -662,6 +664,43 @@ pub async fn paste_clip(
 }
 
 #[tauri::command]
+pub async fn toggle_pin(
+    id: String,
+    pinned: Option<bool>,
+    db: tauri::State<'_, Arc<Database>>,
+) -> Result<bool, String> {
+    let pool = &db.pool;
+
+    // An explicit value is used when the caller knows the target state;
+    // otherwise flip whatever is stored so the shortcut is idempotent-safe.
+    let next = match pinned {
+        Some(value) => value,
+        None => {
+            let current: Option<(i64,)> =
+                sqlx::query_as::<_, (i64,)>("SELECT is_pinned FROM clips WHERE uuid = ?")
+                    .bind(&id)
+                    .fetch_optional(pool)
+                    .await
+                    .map_err(|e| e.to_string())?;
+
+            match current {
+                Some((value,)) => value == 0,
+                None => return Err("Clip not found".to_string()),
+            }
+        }
+    };
+
+    sqlx::query(r#"UPDATE clips SET is_pinned = ? WHERE uuid = ?"#)
+        .bind(if next { 1_i64 } else { 0_i64 })
+        .bind(&id)
+        .execute(pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(next)
+}
+
+#[tauri::command]
 pub async fn delete_clip(
     id: String,
     hard_delete: bool,
@@ -867,7 +906,7 @@ pub async fn search_clips(
             if let Some(numeric_id) = folder_id_num {
                 sqlx::query_as(r#"
                     SELECT * FROM clips WHERE is_deleted = 0 AND folder_id = ? AND (text_preview LIKE ? OR content LIKE ?)
-                    ORDER BY created_at DESC LIMIT ? OFFSET ?
+                    ORDER BY is_pinned DESC, created_at DESC LIMIT ? OFFSET ?
                 "#)
                 .bind(numeric_id)
                 .bind(&search_pattern)
@@ -882,7 +921,7 @@ pub async fn search_clips(
         None => sqlx::query_as(
             r#"
                 SELECT * FROM clips WHERE is_deleted = 0 AND (text_preview LIKE ? OR content LIKE ?)
-                ORDER BY created_at DESC LIMIT ? OFFSET ?
+                ORDER BY is_pinned DESC, created_at DESC LIMIT ? OFFSET ?
             "#,
         )
         .bind(&search_pattern)

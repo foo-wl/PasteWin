@@ -91,6 +91,7 @@ pub struct Clip {
     pub folder_id: Option<i64>,
     pub is_deleted: bool,
     pub is_thumbnail: bool,
+    pub is_pinned: bool,
     pub source_app: Option<String>,
     pub source_icon: Option<String>,
     pub metadata: Option<String>,
@@ -136,6 +137,7 @@ pub struct ClipboardItem {
     pub source_app: Option<String>,
     pub source_icon: Option<String>,
     pub metadata: Option<String>,
+    pub is_pinned: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

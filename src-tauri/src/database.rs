@@ -44,6 +44,7 @@ impl Database {
                 folder_id INTEGER REFERENCES folders(id),
                 is_deleted INTEGER DEFAULT 0,
                 is_thumbnail INTEGER NOT NULL DEFAULT 0,
+                is_pinned INTEGER NOT NULL DEFAULT 0,
                 source_app TEXT,
                 source_icon TEXT,
                 metadata TEXT,
@@ -105,6 +106,12 @@ impl Database {
         add_column_if_missing(
             &self.pool,
             "ALTER TABLE clips ADD COLUMN is_thumbnail INTEGER NOT NULL DEFAULT 0",
+        )
+        .await?;
+
+        add_column_if_missing(
+            &self.pool,
+            "ALTER TABLE clips ADD COLUMN is_pinned INTEGER NOT NULL DEFAULT 0",
         )
         .await?;
 

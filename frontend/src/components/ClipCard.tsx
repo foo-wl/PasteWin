@@ -4,7 +4,7 @@ import { useMemo, memo, useState, forwardRef } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useTranslation } from 'react-i18next';
 import { PREVIEW_CHAR_LIMIT } from '../constants';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Pin } from 'lucide-react';
 import { useMotionValue, useMotionTemplate, motion } from 'framer-motion';
 
 interface ClipCardProps {
@@ -210,6 +210,14 @@ export const ClipCard = memo(
             <span className="flex-1 truncate text-[11px] font-bold uppercase tracking-wider text-black/80">
               {title}
             </span>
+            {clip.is_pinned && (
+              <Pin
+                size={12}
+                className="flex-shrink-0 text-black/70"
+                strokeWidth={2.5}
+                fill="currentColor"
+              />
+            )}
             <button
               data-el="clip-card-copy-btn"
               onClick={(e) => {

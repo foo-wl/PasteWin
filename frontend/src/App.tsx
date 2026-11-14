@@ -474,6 +474,24 @@ function App() {
     }
   };
 
+  const handleTogglePin = useCallback(async (clipId: string | null) => {
+    if (!clipId) return;
+    try {
+      const pinned = await invoke<boolean>('toggle_pin', { id: clipId, pinned: null });
+      setClips((prev) => {
+        const next = prev.map((c) => (c.id === clipId ? { ...c, is_pinned: pinned } : c));
+        // Mirror the backend ordering: pinned first, then newest first.
+        return [...next].sort((a, b) => {
+          const pinDelta = Number(b.is_pinned ?? false) - Number(a.is_pinned ?? false);
+          if (pinDelta !== 0) return pinDelta;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+      });
+    } catch (error) {
+      console.error('Failed to toggle pin:', error);
+    }
+  }, []);
+
   const getFullImageBlob = useCallback(
     async (clipId: string, fallbackClip: AppClipboardItem): Promise<Blob> => {
       const detail = await invoke<AppClipboardItem>('get_clip_detail', { id: clipId });
@@ -640,6 +658,7 @@ function App() {
     onNavigateRight: handleNavigateRight,
     onPaste: handlePasteSelected,
     onPasteIndex: isDialogOpen ? undefined : handlePasteIndex,
+    onPin: isDialogOpen ? undefined : () => handleTogglePin(selectedClipId),
   });
 
   const handleAiAction = async (clipId: string, action: string, title: string) => {
@@ -740,6 +759,12 @@ function App() {
               options={
                 contextMenu.type === 'card'
                   ? [
+                      {
+                        label: clips.find((c) => c.id === contextMenu.itemId)?.is_pinned
+                          ? t('contextMenu.unpin')
+                          : t('contextMenu.pin'),
+                        onClick: () => handleTogglePin(contextMenu.itemId),
+                      },
                       ...(clips.find((c) => c.id === contextMenu.itemId)?.clip_type !== 'image'
                         ? [
                             {

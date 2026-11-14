@@ -37,6 +37,8 @@
     "copy": "Kopieren",
     "paste": "Einfügen",
     "pastePlainText": "Als unformatierten Text einfügen",
+    "pin": "Anheften",
+    "unpin": "Losheften",
     "delete": "Löschen",
     "rename": "Umbenennen",
     "moveToFolder": "In Ordner verschieben",

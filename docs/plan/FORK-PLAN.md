@@ -15,9 +15,11 @@
 | 11-14 | 建 GitHub 仓库 `foo-wl/Pastewin` | ✅ |
 | 11-14 | 首次 push | ⚠️ **推错了**：`git init` 建在父目录 `Paste/`，只把计划文档推上去，源码成了指向本地提交的 submodule 指针（远端无代码、无 workflow、CI 未触发） |
 | 11-14 | 纠正：仓库根 = 应用源码，计划文档归档到 `docs/plan/` | ✅ |
-| 待办 | 在 `pastepaw/` 里 `git push --force` 覆盖远端错误历史 | ⬜ |
+| 11-14 | 阶段 B-1：`Ctrl+1..9` 直选 + 卡片数字角标 + 输入框焦点保护 | ✅ `9f53968` |
+| 11-14 | 阶段 B-2：`P` 键置顶（`is_pinned` 列 + `toggle_pin` 命令 + 置顶优先排序 + 卡片钉图标） | ✅ |
+| 待办 | `git push --force` 覆盖远端错误历史（GitHub 暂不可达，暂停） | ⬜ |
 | 待办 | Win11 装机验收（`docs/TESTING.md` §5 清单） | ⬜ |
-| 待办 | 阶段 B：`Ctrl+1..9` → 文件类型 → FTS5 → 保留策略 | ⬜ |
+| 待办 | 阶段 B-3：文件类型 `CF_HDROP` → FTS5 → 保留策略 | ⬜ |
 
 **已完成的改名范围**：`productName` / 窗口标题 / crate 名 / `identifier`（`com.pastewin.app`）/ 数据目录（`PasteWin/images`）/ assetProtocol scope / 托盘 tooltip 与菜单 / 单实例通知 / 自身进程排除（`PasteWin.exe`）/ 前端 i18n 5 语言 / localStorage key / 设置页 About 区 / 调试假数据 / README 中英双版。
 
@@ -57,8 +59,8 @@
 | 1 | **文件类型 `CF_HDROP` 不支持** | `clipboard.rs` 无 `CF_HDROP`/`DragQueryFileW` | 1.5–2 天 |
 | 2 | **搜索用 `LIKE '%q%'`**，无 FTS5，全表扫描 | `commands.rs::search_clips` | 1 天 |
 | 3 | **无自动保留策略**，历史无限增长 | `commands.rs` 只有手动清空 | 0.5 天 |
-| 4 | **无 `Ctrl+1..9` 直选** | `useKeyboard.ts` 仅 7 个键 | 2 小时 |
-| 5 | **`P` 键置顶实际无效**：`clips` 表没有 `is_pinned` 列 | `database.rs` schema vs `useKeyboard.ts` | 0.5 天 |
+| 4 | ~~**无 `Ctrl+1..9` 直选**~~ **已实现**：`useKeyboard.onPasteIndex`，卡片 footer 显示 1–9 角标，输入框聚焦时屏蔽 | `useKeyboard.ts` / `App.tsx` / `ClipCard.tsx` | 已完成 |
+| 5 | ~~**`P` 键置顶无效**~~ **已实现**：新增 `is_pinned` 列（`add_column_if_missing` 迁移）、`toggle_pin` 命令、`ORDER BY is_pinned DESC, created_at DESC`、卡片钉图标、右键菜单项 | `database.rs` / `commands.rs` / `models.rs` | 已完成 |
 | 6 | 无 Snippets（片段模板） | 无 | 1.5 天 |
 | 7 | 无 Paste Stack（队列粘贴） | 无 | 1 天 |
 | 8 | 无多选批量 | 无 | 1 天 |

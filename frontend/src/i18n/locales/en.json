@@ -37,6 +37,8 @@
     "copy": "Copy",
     "paste": "Paste",
     "pastePlainText": "Paste as Plain Text",
+    "pin": "Pin to Top",
+    "unpin": "Unpin",
     "delete": "Delete",
     "rename": "Rename",
     "moveToFolder": "Move to Folder",

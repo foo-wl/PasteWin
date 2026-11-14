@@ -37,6 +37,8 @@
     "copy": "复制",
     "paste": "粘贴",
     "pastePlainText": "粘贴为纯文本",
+    "pin": "置顶",
+    "unpin": "取消置顶",
     "delete": "删除",
     "rename": "重命名",
     "moveToFolder": "移动到文件夹",
